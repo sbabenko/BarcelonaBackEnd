@@ -1,0 +1,6 @@
+@BarcelonaBackEnd_HostAddress = http://localhost:5209
+
+GET {{BarcelonaBackEnd_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
