@@ -1,26 +1,29 @@
-﻿namespace BarcelonaBackEnd.Shared
+﻿using Microsoft.AspNetCore.SignalR;
+
+public class ChatHub : Hub
 {
-    using Microsoft.AspNetCore.SignalR;
-    public class ChatHub : Hub
+    private readonly ILogger<ChatHub> _logger;
+
+    public ChatHub(ILogger<ChatHub> logger)
     {
-        private readonly ILogger<ChatHub> _logger;
+        _logger = logger;
+    }
 
-        public ChatHub(ILogger<ChatHub> logger)
-        {
-            _logger = logger;
-        }
-        public async Task SendMessage(string user, string message)
-        {
-            var messageObject = new
-            {
-                User = user,
-                Message = message
-            };
+    public async Task SendMessage(string user, string message)
+    {
+        _logger.LogInformation($"Message received from {user}: {message}");
+        await Clients.All.SendAsync("ReceiveMessage", user, message);
+    }
 
-            _logger.LogInformation("Received message from {User}: {Message}", user, message);
+    public override Task OnConnectedAsync()
+    {
+        _logger.LogInformation($"Client connected: {Context.ConnectionId}");
+        return base.OnConnectedAsync();
+    }
 
-            await Clients.All.SendAsync("ReceiveMessage", messageObject);
-        }
+    public override Task OnDisconnectedAsync(Exception exception)
+    {
+        _logger.LogInformation($"Client disconnected: {Context.ConnectionId}");
+        return base.OnDisconnectedAsync(exception);
     }
 }
-
