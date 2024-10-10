@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using BarcelonaBackEnd.Models;
+using Microsoft.AspNetCore.SignalR;
 
 public class ChatHub : Hub
 {
@@ -15,6 +16,12 @@ public class ChatHub : Hub
         await Clients.All.SendAsync("ReceiveMessage", user, message);
     }
 
+    public async Task SendReadReceipt(string messageId, string username)
+    {
+        _logger.LogInformation($"Message read receipt for message id {messageId} from {username}");
+        await Clients.All.SendAsync("ReceiveReadReceipt", messageId);
+    }
+
     public override Task OnConnectedAsync()
     {
         _logger.LogInformation($"Client connected: {Context.ConnectionId}");
@@ -26,4 +33,10 @@ public class ChatHub : Hub
         _logger.LogInformation($"Client disconnected: {Context.ConnectionId}");
         return base.OnDisconnectedAsync(exception);
     }
+
+    public async Task NotifyReadReceipt(string messageId, string username)
+    {
+        await Clients.All.SendAsync("ReceiveReadReceipt", messageId, username);
+    }
+
 }
